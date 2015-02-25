@@ -891,6 +891,22 @@ class Node(object):
             if vol.status not in ['available', 'detaching']:
                 vol.detach()
 
+    def delete_external_volumes(self):
+        """
+        Deletes all volumes returned by self.attached_vols 
+        """
+        block_devs = self.attached_vols
+        for dev in block_devs:
+            vol_id = block_devs[dev].volume_id
+            vol = self.ec2.get_volume(vol_id)
+            log.info("Detaching volume %s from %s" % (vol.id, self.alias))
+            if vol.status not in ['available', 'detaching']:
+                vol.detach()
+                while vol.update() != 'available':
+                    time.sleep(5)
+                log.info("Deleting volume %s from %s" % (vol.id, self.alias))
+                vol.delete()
+
     def delete_root_volume(self):
         """
         Detach and destroy EBS root volume (EBS-backed node only)

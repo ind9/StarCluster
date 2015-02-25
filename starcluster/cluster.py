@@ -1548,6 +1548,13 @@ class Cluster(object):
         for node in self.nodes:
             node.detach_external_volumes()
 
+    def delete_volumes(self):
+        """
+        Delete all volumes from all nodes
+        """
+        for node in self.nodes:
+            node.delete_external_volumes()
+
     @print_timing('Restarting cluster')
     def restart_cluster(self, reboot_only=False):
         """
@@ -1615,7 +1622,7 @@ class Cluster(object):
                 log.warn("Cannot run plugins: %s" % e)
             else:
                 raise
-        self.detach_volumes()
+        self.delete_volumes()
         nodes = self.nodes
         for node in nodes:
             node.terminate()
