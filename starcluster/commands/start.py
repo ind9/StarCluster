@@ -177,9 +177,12 @@ class CmdStart(ClusterCompleter):
                           action='store_false',
                           help="Do NOT prefix dns names of all nodes in the "
                           "cluster with the cluster tag (default)")
-        parser.add_option("-N", "--subnet-id", dest="subnet_id",
-                          action="store", type="string",
-                          help=("Launch cluster into a VPC subnet"))
+        # This option is disabled because we need to use nargs='+' which is
+        # supported by argparse but not optparse. Use cluster template
+        # configuration key SUBNET_IDS instead.
+        # parser.add_option("-N", "--subnet-id", dest="subnet_id",
+        #                   action="store", type="string",
+        #                   help=("Launch cluster into a VPC subnet"))
 
     def execute(self, args):
         if len(args) != 1:
