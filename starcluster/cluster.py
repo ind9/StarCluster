@@ -392,6 +392,7 @@ class Cluster(object):
                  cluster_user=None,
                  cluster_shell=None,
                  dns_prefix=None,
+                 dns_suffix=None,
                  master_image_id=None,
                  master_instance_type=None,
                  node_image_id=None,
@@ -432,6 +433,7 @@ class Cluster(object):
         self.plugins = self.load_plugins(plugins)
         self.userdata_scripts = userdata_scripts or []
         self.dns_prefix = dns_prefix and cluster_tag
+        self.dns_suffix = dns_suffix and cluster_tag
 
         self._cluster_group = None
         self._placement_group = None
@@ -711,6 +713,7 @@ class Cluster(object):
                              node_instance_type=self.node_instance_type,
                              availability_zone=self.availability_zone,
                              dns_prefix=self.dns_prefix,
+                             dns_suffix=self.dns_suffix,
                              subnet_id=self.subnet_ids,
                              public_ips=self.public_ips,
                              disable_queue=self.disable_queue,
@@ -861,11 +864,15 @@ class Cluster(object):
         if master:
             if self.dns_prefix:
                 return "%s-master" % self.dns_prefix
+            elif self.dns_suffix:
+                return "master-%s" % self.dns_suffix
             else:
                 return "master"
         elif id is not None:
             if self.dns_prefix:
                 alias = '%s-node%.3d' % (self.dns_prefix, id)
+            elif self.dns_suffix:
+                alias = 'node%.3d-%s' % (id, self.dns_suffix)
             else:
                 alias = 'node%.3d' % id
         else:
@@ -1850,6 +1857,7 @@ class ClusterValidator(validators.Validator):
             self.validate_required_settings()
             self.validate_vpc()
             self.validate_dns_prefix()
+            self.validate_dns_suffix()
             self.validate_spot_bid()
             self.validate_cluster_size()
             self.validate_cluster_user()
@@ -1894,6 +1902,22 @@ class ClusterValidator(validators.Validator):
                 " via the dns_prefix option, {dns_prefix} should only have"
                 " alphanumeric characters and a '-' or '.'".format(
                     dns_prefix=self.cluster.dns_prefix))
+        return True
+
+    def validate_dns_suffix(self):
+        if not self.cluster.dns_suffix:
+            return True
+
+        # check that the dns suffix is a valid hostname
+        is_valid = utils.is_valid_hostname(self.cluster.dns_suffix)
+        if not is_valid:
+            raise exception.ClusterValidationError(
+                "The cluster name you chose, {dns_suffix}, is"
+                " not a valid dns name. "
+                " Since you have chosen to prepend the hostnames"
+                " via the dns_suffix option, {dns_suffix} should only have"
+                " alphanumeric characters and a '-' or '.'".format(
+                    dns_suffix=self.cluster.dns_prefix))
         return True
 
     def validate_spot_bid(self):

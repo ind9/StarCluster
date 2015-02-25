@@ -155,6 +155,10 @@ class Node(object):
             self._alias = alias
         return self._alias
 
+    @property
+    def short_alias(self):
+        return self.alias.split("-", 1)[0]
+
     def get_plugins(self):
         plugstxt = self.user_data.get(static.UD_PLUGINS_FNAME)
         payload = plugstxt.split('\n', 2)[2]

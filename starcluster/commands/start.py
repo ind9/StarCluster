@@ -126,7 +126,7 @@ class CmdStart(ClusterCompleter):
                           action="store", type="string", default=None,
                           help="name of user to create on cluster "
                           "(defaults to sgeadmin)")
-        opt = parser.add_option("-S", "--cluster-shell", dest="cluster_shell",
+        opt = parser.add_option("-B", "--cluster-shell", dest="cluster_shell",
                                 action="store",
                                 choices=static.AVAILABLE_SHELLS.keys(),
                                 default=None,
@@ -173,6 +173,10 @@ class CmdStart(ClusterCompleter):
                           action='store_true',
                           help="Prefix dns names of all nodes in the cluster "
                           "with the cluster tag")
+        parser.add_option("-S", "--dns-suffix", dest="dns_suffix",
+                          action='store_true',
+                          help="Suffix dns names of all nodes in the cluster "
+                          "with the cluster tag.")
         parser.add_option("-p", "--no-dns-prefix", dest="dns_prefix",
                           action='store_false',
                           help="Do NOT prefix dns names of all nodes in the "
@@ -241,6 +245,8 @@ class CmdStart(ClusterCompleter):
                 self.warn_experimental(msg, num_secs=5)
         if self.opts.dns_prefix:
             scluster.dns_prefix = tag
+        if self.opts.dns_suffix:
+            scluster.dns_suffix = tag
         try:
             scluster.start(create=create, create_only=create_only,
                            validate=validate, validate_only=validate_only,
