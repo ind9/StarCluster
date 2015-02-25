@@ -889,7 +889,7 @@ class Node(object):
             vol = self.ec2.get_volume(vol_id)
             log.info("Detaching volume %s from %s" % (vol.id, self.alias))
             if vol.status not in ['available', 'detaching']:
-                vol.detach()
+                vol.detach(force=True)
 
     def delete_external_volumes(self):
         """
@@ -901,7 +901,7 @@ class Node(object):
             vol = self.ec2.get_volume(vol_id)
             log.info("Detaching volume %s from %s" % (vol.id, self.alias))
             if vol.status not in ['available', 'detaching']:
-                vol.detach()
+                vol.detach(force=True)
                 while vol.update() != 'available':
                     time.sleep(5)
                 log.info("Deleting volume %s from %s" % (vol.id, self.alias))
