@@ -1507,13 +1507,13 @@ class EasyEC2(EasyAWS):
     def get_spot_history(self, instance_type, start=None, end=None, zone=None,
                          plot=False, plot_server_interface="localhost",
                          plot_launch_browser=True, plot_web_browser=None,
-                         plot_shutdown_server=True, classic=False, vpc=False,
+                         plot_shutdown_server=True, classic=False, vpc=True,
                          mute=False):
 
         def log_info(*args):
             if not mute:
                 log.info(*args)
-                
+
         if start and not utils.is_iso_time(start):
             raise exception.InvalidIsoDate(start)
         if end and not utils.is_iso_time(end):
@@ -1530,8 +1530,8 @@ class EasyEC2(EasyAWS):
         else:
             pdesc = "Linux/UNIX (Amazon VPC)"
             short_pdesc = "VPC"
-        log.info("Fetching spot history for %s (%s)" %
-                 (instance_type, short_pdesc))
+        log.info("Fetching spot history for %s (%s) in zone %s" %
+                 (instance_type, short_pdesc, zone))
         hist = self.conn.get_spot_price_history(start_time=start, end_time=end,
                                                 availability_zone=zone,
                                                 instance_type=instance_type,
