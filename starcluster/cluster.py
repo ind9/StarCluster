@@ -274,7 +274,7 @@ class ClusterManager(managers.Manager):
             raise ValueError("Invalid cluster group name: %s" % sg)
         return tag
 
-    def list_clusters(self, cluster_groups=None, show_ssh_status=False):
+    def list_clusters(self, cluster_groups=None, show_ssh_status=False, enable_log=False):
         """
         Prints a summary for each active cluster on EC2
         """
@@ -294,10 +294,11 @@ class ClusterManager(managers.Manager):
                 cl = self.get_cluster(tag, group=scg, load_plugins=False,
                                       load_volumes=False, require_keys=False)
             except exception.IncompatibleCluster as e:
-                sep = '*' * 60
-                log.error('\n'.join([sep, e.msg, sep]),
+                if enable_log:
+                    sep = '*' * 60
+                    log.error('\n'.join([sep, e.msg, sep]),
                           extra=dict(__textwrap__=True))
-                print
+                    print
                 continue
             header = '%s (security group: %s)' % (tag, scg.name)
             print '-' * len(header)
