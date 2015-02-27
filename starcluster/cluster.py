@@ -18,6 +18,7 @@
 import os
 import re
 import time
+import gevent
 import string
 import pprint
 import warnings
@@ -1559,8 +1560,10 @@ class Cluster(object):
         """
         Delete all volumes from all nodes
         """
+        threads = []
         for node in self.nodes:
-            node.delete_external_volumes()
+            threads.append(gevent.spawn(node.delete_external_volumes))
+        gevent.joinall(threads)
 
     @print_timing('Restarting cluster')
     def restart_cluster(self, reboot_only=False):

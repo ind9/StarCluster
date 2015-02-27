@@ -18,6 +18,7 @@
 import re
 import time
 import stat
+import gevent
 import base64
 import socket
 import posixpath
@@ -910,7 +911,7 @@ class Node(object):
             if vol.status not in ['available', 'detaching']:
                 vol.detach(force=True)
                 while vol.update() != 'available':
-                    time.sleep(5)
+                    gevent.sleep(2)
                 log.info("Deleting volume %s from %s" % (vol.id, self.alias))
                 vol.delete()
 
