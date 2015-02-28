@@ -356,10 +356,12 @@ class ClusterManager(managers.Manager):
             if nodes:
                 print 'Cluster nodes:'
                 for node in nodes:
-                    nodeline = "    %7s %s %s %s (State: %s)" % (node.alias, node.instance_type,
+                    nodeline = "    %7s %s %s %s (state: %s)" % (node.alias, node.instance_type,
                                                      node.id, node.addr or '', node.state)
                     if node.spot_id:
-                        nodeline += ' (spot %s)' % node.spot_id
+                        nodeline += ' (spot request %s)' % node.spot_id
+                    else:
+                        nodeline += ' (ondemand instance)'
                     if show_ssh_status:
                         ssh_status = {True: 'Up', False: 'Down'}
                         nodeline += ' (SSH: %s)' % ssh_status[node.is_up()]
