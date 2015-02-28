@@ -320,7 +320,8 @@ class ClusterManager(managers.Manager):
             if scg.vpc_id:
                 print 'VPC: %s' % scg.vpc_id
                 print 'Subnet: %s' % getattr(n, 'subnet_id', 'N/A')
-            print 'Zone: %s' % getattr(n, 'placement', 'N/A')
+            zone = getattr(n, 'placement', 'N/A')
+            print 'Zone: %s' % zone
             print 'Keypair: %s' % getattr(n, 'key_name', 'N/A')
             ebs_vols = []
             for node in nodes:
@@ -355,8 +356,8 @@ class ClusterManager(managers.Manager):
             if nodes:
                 print 'Cluster nodes:'
                 for node in nodes:
-                    nodeline = "    %7s %s %s %s" % (node.alias, node.state,
-                                                     node.id, node.addr or '')
+                    nodeline = "    %7s %s %s %s (State: %s)" % (node.alias, node.instance_type,
+                                                     node.id, node.addr or '', node.state)
                     if node.spot_id:
                         nodeline += ' (spot %s)' % node.spot_id
                     if show_ssh_status:
@@ -366,6 +367,17 @@ class ClusterManager(managers.Manager):
                 print 'Total nodes: %d' % len(nodes)
             else:
                 print 'Cluster nodes: N/A'
+
+            days = int(uptime.split(' days,')[0])
+            hours = int(uptime.split(' days,')[1].split(':')[0]) + 1
+            if spot_reqs:
+                total_hours = days * 24 + hours
+                spot_price_history = self.ec2.get_spot_history(node.instance_type,
+                                                               zone=zone,
+                                                               mute=True)
+                spot_price = spot_price_history[0][1]
+                print 'Total Instance Hours: %d' % (total_hours * len(nodes))
+                print 'Approx Cluster Cost till now: $%0.4f' % (spot_price * len(nodes) * total_hours)
             print
 
     def run_plugin(self, plugin_name, cluster_tag):
