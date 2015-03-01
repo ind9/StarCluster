@@ -307,6 +307,8 @@ class ClusterManager(managers.Manager):
             nodes = cl.nodes
             try:
                 n = nodes[0]
+                print 'Namenode: %s:50070' % n.alias
+                print 'Jobtracker: %s:50030' % n.alias
             except IndexError:
                 n = None
             state = getattr(n, 'state', None)
@@ -372,7 +374,7 @@ class ClusterManager(managers.Manager):
 
             days = int(uptime.split(' days,')[0])
             hours = int(uptime.split(' days,')[1].split(':')[0]) + 1
-            if spot_reqs:
+            if nodes[-1].spot_id:
                 total_hours = days * 24 + hours
                 spot_price_history = self.ec2.get_spot_history(node.instance_type,
                                                                zone=zone,
