@@ -992,11 +992,14 @@ class Cluster(object):
                 if price < spot_bid and force_least_spot_price:
                     log.info("Selecting the zone %s with least spot price %s" % (zone, price))
                 else:
+                    # Bid 0.05$ higher than the minimum spot price.
+                    log.info("Making bid price 0.05$ higher than the minimum spot price")
+                    spot_bid = price + 0.05 
                     # Let amazon pick the first zone where the prices goes
                     # below the spot_bid
-                    log.info("Reverting to \"no zone\" as the min price is "
-                    "above the spot bid.")
-                    zone = None
+                    # log.info("Reverting to \"no zone\" as the min price is "
+                    # "above the spot bid.")
+                    # zone = None
         elif zone is None:
             # Make sure master is in the same zone as the volumes mounted by the cluster
             zone = getattr(self.zone, 'name', None)
