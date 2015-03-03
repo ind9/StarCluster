@@ -953,7 +953,7 @@ class Cluster(object):
 
     def create_nodes(self, aliases, image_id=None, instance_type=None,
                      zone=None, placement_group=None, spot_bid=None,
-                     force_flat=False):
+                     force_flat=False, force_least_spot_price=True):
         """
         Convenience method for requesting instances with this cluster's
         settings. All settings (kwargs) except force_flat default to cluster
@@ -980,7 +980,7 @@ class Cluster(object):
 
         launch_group = availability_zone_group
 
-        if spot_bid and not placement_group and zone is None:
+        if spot_bid and zone is None:
             zones_filter = None
             if self.subnet_ids:
                 zones_filter = [s_net.availability_zone
@@ -989,12 +989,17 @@ class Cluster(object):
                 zone, price = self.ec2.get_spot_cheapest_zone(instance_type,
                                                               zones_filter)
                 log.info("Min price of %f found in zone %s", price, zone)
-                if price > spot_bid:
+                if price < spot_bid and force_least_spot_price:
+                    log.info("Selecting the zone %s with least spot price %s" % (zone, price))
+                else:
                     # Let amazon pick the first zone where the prices goes
                     # below the spot_bid
                     log.info("Reverting to \"no zone\" as the min price is "
                     "above the spot bid.")
                     zone = None
+        elif zone is None:
+            # Make sure master is in the same zone as the volumes mounted by the cluster
+            zone = getattr(self.zone, 'name', None)
 
         image_id = image_id or self.node_image_id
         count = len(aliases) if not spot_bid else 1
