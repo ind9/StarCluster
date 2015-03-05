@@ -980,7 +980,7 @@ class Cluster(object):
 
         launch_group = availability_zone_group
 
-        if spot_bid and zone is None:
+        if spot_bid:
             zones_filter = None
             if self.subnet_ids:
                 zones_filter = [s_net.availability_zone

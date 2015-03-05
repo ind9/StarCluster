@@ -153,6 +153,8 @@ class Node(object):
                 self.add_tag('alias', alias)
             if not self.tags.get('Name'):
                 self.add_tag('Name', alias)
+            if not self.tags.get('Environment'):
+                self.add_tag('Environment', 'StarCluster')
             self._alias = alias
         return self._alias
 
