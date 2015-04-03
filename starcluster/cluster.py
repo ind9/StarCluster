@@ -458,6 +458,7 @@ class Cluster(object):
         self._zone = None
         self._master = None
         self._nodes = []
+        self._subnet = None
         self._pool = None
         self._progress_bar = None
         self.__default_plugin = None
@@ -658,6 +659,12 @@ class Cluster(object):
     def get_vpc_id(self, subnet_id):
         subnet = self.ec2.get_subnet(self.subnet_ids[0])
         return subnet.vpc_id
+
+    @property
+    def subnet(self):
+        if not self._subnet and self.subnet_ids:
+            self._subnet = self.get_node('master').subnet_id
+        return self._subnet
 
     @property
     def vpc_id(self):
