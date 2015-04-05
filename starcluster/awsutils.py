@@ -517,7 +517,6 @@ class EasyEC2(EasyAWS):
                 price, image_id,
                 count=count, launch_group=launch_group,
                 security_group_ids=security_group_ids,
-                subnet_id=subnet_id,
                 availability_zone_group=availability_zone_group,
                 **shared_kwargs)
         else:
